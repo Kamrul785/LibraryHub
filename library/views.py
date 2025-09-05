@@ -21,6 +21,10 @@ class AuthorViewSet(viewsets.ModelViewSet):
     serializer_class = AuthorSerializer
     filter_backends = [SearchFilter]
     search_fields = ['name','biography']
+    
+    def get_queryset(self):
+        return Author.objects.prefetch_related('books').all()
+    
     def get_permissions(self):
         if self.action in ['create','post','patch','destroy']:
             return [IsAdminUser()]
@@ -32,36 +36,14 @@ class BookViewSet(viewsets.ModelViewSet):
     Supports filtering by category, author, and availability status.
     Supports search by title, category, and author name.
     """
-    queryset = Book.objects.all()
+    queryset = Book.objects.all() 
     filter_backends = [DjangoFilterBackend,SearchFilter]
     filterset_fields = ['category', 'author', 'availability_status']
     search_fields = ['title', 'category', 'author__name']
     
-    # @swagger_auto_schema(
-    #     operation_summary='List of all books',
-    #     operation_description="List all books or search/filter by fields."
-    # )
-    # def list(self, request, *args, **kwargs):
-    #     return super().list(request, *args, **kwargs)
-
-    # @swagger_auto_schema(
-    #     operation_summary='Retrive a book',
-    #     operation_description="Retrieve a single book by it's ID."
-    # )
-    # def retrieve(self, request, *args, **kwargs):
-    #     return super().retrieve(request, *args, **kwargs)
-
-    # @swagger_auto_schema(
-    #     operation_summary= "Create Book",
-    #     operation_description="Create a new book."
-    # )
-    # def create(self, request, *args, **kwargs):
-    #     return super().create(request, *args, **kwargs)
-
-    # @swagger_auto_schema(operation_summary='Update a book',operation_description="Update a book.")
-    # def update(self, request, *args, **kwargs):
-    #     return super().update(request, *args, **kwargs)
-
+    def get_queryset(self):
+        return Book.objects.select_related('author').all()
+    
     def get_permissions(self):
         if self.action in ['create','post','patch','destroy']:
             return [IsAdminUser()]
@@ -93,6 +75,9 @@ class BorrowRecordViewSet(viewsets.ModelViewSet):
     serializer_class = BorrowRecordSerializer
     filter_backends = [DjangoFilterBackend,SearchFilter]
     filterset_fields = ['status', 'book','member']
+    
+    # def get_queryset(self):
+    #     return BorrowRecord.objects.all()
     
     def get_permissions(self):
         if self.action in ['create','post','patch','destroy']:
