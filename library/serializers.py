@@ -18,7 +18,7 @@ class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
         fields = ['id', 'title', 'isbn', 'category', 'availability_status', 
-                 'publication_date', 'total_copies', 'available_copies', 
+                 'publication_date', 'total_copies', 'available_copies', 'author',
                   'author_name']
         
     def get_name(self, book:Book):
